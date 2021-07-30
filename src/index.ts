@@ -644,10 +644,10 @@ import { MessageSpec } from './proto/specs/Message';
 
                         const messageProto = decodeProto(MessageSpec, unpad(result));
 
-                        console.log('decryptMessage', {
+                        console.log('decryptMessage', JSON.stringify({
                             ...msgInfo,
                             ...messageProto,
-                        });
+                        }));
                         break;
 
                     default:

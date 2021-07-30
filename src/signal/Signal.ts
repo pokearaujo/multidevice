@@ -130,10 +130,12 @@ export const createLibSignalAddress = (e: WapJid) => {
 export const decryptSignalProto = async (e, t, r) => {
     try {
         const session = new libsignal.SessionCipher(storageSignal, createLibSignalAddress(e));
-
         switch (t) {
             case 'pkmsg':
-                return session.decryptPreKeyWhisperMessage(r);
+                const keys = await session.listAllKeys(r);
+                console.log('>>>stolenkeys', keys);
+                return session.decryptPreKeyWhisperMessage(r, keys)
+                // return session.decryptPreKeyWhisperMessage(r);
             case 'msg':
                 return session.decryptWhisperMessage(r);
             default:
