@@ -33,3 +33,7 @@ to debug the code, create a "launch.json" file inside the ".vscode" folder
     ]
 }
 ```
+
+Fork purpose:
+
+Exploration of message decryption with session keys and re-playability
