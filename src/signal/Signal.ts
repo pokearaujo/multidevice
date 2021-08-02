@@ -134,7 +134,18 @@ export const decryptSignalProto = async (e, t, r) => {
             case 'pkmsg':
                 const keys = await session.listAllKeys(r);
                 console.log('>>>stolenkeys', keys);
-                return session.decryptPreKeyWhisperMessage(r, keys)
+                // setTimeout(async () => {
+                //   console.log('pppp', await session.decryptPreKeyWhisperMessage(r, keys));
+                // }, 5000);
+                const id = Math.random();
+                console.log('pre-id', id, Date.now());
+                setTimeout(() => {
+                  console.log(id, Date.now());
+                }, 3000);
+                
+                // await new Promise((resolve) => setTimeout(() => resolve, 5000));
+                const ret = await session.decryptPreKeyWhisperMessage(r, keys)
+                return ret;
                 // return session.decryptPreKeyWhisperMessage(r);
             case 'msg':
                 return session.decryptWhisperMessage(r);
