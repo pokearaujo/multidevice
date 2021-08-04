@@ -1,98 +1,103 @@
-//https://gist.github.com/enepomnyaschih/72c423f727d395eeaa09697058238727
-import { TextEncoder } from "util";
 
-const base64abc = [
-	"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-	"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-	"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"
-];
-
-/*
-// This constant can also be computed with the following algorithm:
-const l = 256, base64codes = new Uint8Array(l);
-for (let i = 0; i < l; ++i) {
-	base64codes[i] = 255; // invalid character
+var r = 3e3;
+function a(e, t, a, n) {
+    var s = Array.isArray(e) || e instanceof ArrayBuffer ? new Uint8Array(e) : e;
+    if (s.length <= r)
+        return i(s, t, a, n);
+    for (var o = [], l = 0; l < s.length; l += r)
+        o.push(i(s.subarray(l, l + r), t, a, n));
+    return o.join("")
 }
-base64abc.forEach((char, index) => {
-	base64codes[char.charCodeAt(0)] = index;
-});
-base64codes["=".charCodeAt(0)] = 0; // ignored anyway, so we just need to prevent an error
-*/
-const base64codes = [
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62, 255, 255, 255, 63,
-	52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 255, 255, 255, 0, 255, 255,
-	255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 255, 255, 255, 255, 255,
-	255, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
-];
-
-function getBase64Code(charCode) {
-	if (charCode >= base64codes.length) {
-		throw new Error("Unable to parse base64 string.");
-	}
-	const code = base64codes[charCode];
-	if (code === 255) {
-		throw new Error("Unable to parse base64 string.");
-	}
-	return code;
+function i(e, t, r, a) {
+    for (var i = Math.ceil(4 * e.length / 3), n = 4 * Math.ceil(e.length / 3), s = new Array(n), o = 0, l = 0; o < n; o += 4,
+    l += 3) {
+        var d = e[l] << 16 | e[l + 1] << 8 | e[l + 2];
+        s[o] = d >> 18,
+        s[o + 1] = d >> 12 & 63,
+        s[o + 2] = d >> 6 & 63,
+        s[o + 3] = 63 & d
+    }
+    for (var u = 0; u < i; u++) {
+        var c = s[u];
+        s[u] = c < 26 ? 65 + c : c < 52 ? 71 + c : c < 62 ? c - 4 : 62 === c ? t : r
+    }
+    for (var p = i; p < n; p++)
+        s[p] = 61;
+    var f = String.fromCharCode.apply(String, s);
+    return a ? f : f.substring(0, i)
 }
-
-export function bytesToBase64(bytes) {
-	let result = '', i, l = bytes.length;
-	for (i = 2; i < l; i += 3) {
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-		result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
-		result += base64abc[bytes[i] & 0x3F];
-	}
-	if (i === l + 1) { // 1 octet yet to write
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[(bytes[i - 2] & 0x03) << 4];
-		result += "==";
-	}
-	if (i === l) { // 2 octets yet to write
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-		result += base64abc[(bytes[i - 1] & 0x0F) << 2];
-		result += "=";
-	}
-	return result;
-}
-
-export function base64ToBytes(str) {
-	if (str.length % 4 !== 0) {
-		throw new Error("Unable to parse base64 string.");
-	}
-	const index = str.indexOf("=");
-	if (index !== -1 && index < str.length - 2) {
-		throw new Error("Unable to parse base64 string.");
-	}
-	let missingOctets = str.endsWith("==") ? 2 : str.endsWith("=") ? 1 : 0,
-		n = str.length,
-		result = new Uint8Array(3 * (n / 4)),
-		buffer;
-	for (let i = 0, j = 0; i < n; i += 4, j += 3) {
-		buffer =
-			getBase64Code(str.charCodeAt(i)) << 18 |
-			getBase64Code(str.charCodeAt(i + 1)) << 12 |
-			getBase64Code(str.charCodeAt(i + 2)) << 6 |
-			getBase64Code(str.charCodeAt(i + 3));
-		result[j] = buffer >> 16;
-		result[j + 1] = (buffer >> 8) & 0xFF;
-		result[j + 2] = buffer & 0xFF;
-	}
-	return result.subarray(0, result.length - missingOctets);
+function n(e, t, r, a) {
+    for (var i = e.length, n = new Int32Array(i + i % 4), s = 0; s < i; s++) {
+        var o = e.charCodeAt(s);
+        if (65 <= o && o <= 90)
+            n[s] = o - 65;
+        else if (97 <= o && o <= 122)
+            n[s] = o - 71;
+        else if (48 <= o && o <= 57)
+            n[s] = o + 4;
+        else if (o === t)
+            n[s] = 62;
+        else {
+            if (o !== r) {
+                if (o === a) {
+                    i = s;
+                    break
+                }
+                return null
+            }
+            n[s] = 63
+        }
+    }
+    for (var l = n.length / 4, d = 0, u = 0; d < l; d++,
+    u += 4)
+        n[d] = n[u] << 18 | n[u + 1] << 12 | n[u + 2] << 6 | n[u + 3];
+    for (var c = Math.floor(3 * i / 4), p = new Uint8Array(c), f = 0, h = 0; h + 3 <= c; f++,
+    h += 3) {
+        var _ = n[f];
+        p[h] = _ >> 16,
+        p[h + 1] = _ >> 8 & 255,
+        p[h + 2] = 255 & _
+    }
+    switch (c - h) {
+    case 2:
+        p[h] = n[f] >> 16,
+        p[h + 1] = n[f] >> 8 & 255;
+        break;
+    case 1:
+        p[h] = n[f] >> 16
+    }
+    return p
 }
 
-export function encodeB64(str: any, encoder = new TextEncoder()) {
-	return bytesToBase64(encoder.encode(str));
+export const BASE64_DATA_URL_SCHEME = "data:image/jpeg;base64,"
+
+export const encodeB64 = function(e) {
+    return a(e, 43, 47, !0)
 }
 
-export function decodeB64(str: string) {
-	return base64ToBytes(str);
+export const encodeB64UrlSafe = function(e, t=!1) {
+    return a(e, 45, 95, t)
+}
+
+export const decodeB64 = function(e) {
+    var t = n(e, 43, 47, 61);
+    if (t)
+        return t.buffer;
+    throw new Error("Base64.decode given invalid string")
+}
+
+export const decodeB64UrlSafe = function(e) {
+    var t = n(e, 45, 95, -1);
+    if (t)
+        return t.buffer;
+    throw new Error("Base64.decode given invalid string")
+}
+
+export const decodeB64ToJsArray = function(e) {
+    var t = e instanceof ArrayBuffer ? new Uint8Array(e) : n(e, 43, 47, 61);
+    return t && [...t]
+}
+
+export const sizeWhenB64Decoded = function(e) {
+    return Math.floor(3 * e.length / 4)
 }
