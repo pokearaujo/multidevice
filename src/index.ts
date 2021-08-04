@@ -322,7 +322,7 @@ import { proto, proto as WAProto } from './proto/WAMessage';
             const advSecret = decodeB64(await storageService.get('advSecretKey'));
             const advSign = await hmacSha256(advSecret, details);
 
-            if (encodeB64(hmac) !== encodeB64(advSign)) {
+            if (encodeB64(hmac) !== encodeB64(new Uint8Array(advSign))) {
                 console.log('invalid hmac from pair-device success');
 
                 sendNotAuthozired();

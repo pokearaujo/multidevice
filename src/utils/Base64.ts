@@ -89,8 +89,8 @@ export function base64ToBytes(str) {
 	return result.subarray(0, result.length - missingOctets);
 }
 
-export function encodeB64(str: any, encoder = new TextEncoder()) {
-	return bytesToBase64(encoder.encode(str));
+export function encodeB64(str: any) {
+    return bytesToBase64(str);
 }
 
 export function decodeB64(str: string) {
