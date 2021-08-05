@@ -37,7 +37,7 @@ import { createSignalAddress, getOrGenPreKeys, putIdentity, toSignalCurvePubKey,
 import { MessageSpec } from './proto/specs/Message';
 
 (async () => {
-    storageService.init('./storage.json');
+    await storageService.initStorage();
 
     const socket = new Socket();
     socket.open();
@@ -115,8 +115,7 @@ import { MessageSpec } from './proto/specs/Message';
         const registrationId = await storageService.getOrSave<number>('registrationId', () => generateRegistrationId());
 
         const me = storageService.get<WapJid>('me');
-        console.log('me', me);
-
+        
         const payload = !me ? generatePayloadRegister(registrationId, signedIdentityKey, signedPreKey) : generatePayloadLogin(me);
 
         const payloadEnc = await noise.encrypt(payload);
@@ -270,9 +269,10 @@ import { MessageSpec } from './proto/specs/Message';
             const reason = node.attrs.reason ?? null;
 
             if (reason == '401') {
+              console.log('************* ERROR 401 - CLEARDOWN & RESTART');
                 // disconnected by cell phone
                 console.log('restarting socket');
-                storageService.clearAll();
+                await storageService.clearAll();
                 socketConn.restart();
             }
         };

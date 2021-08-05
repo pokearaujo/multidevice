@@ -17,6 +17,7 @@
   "dependencies": {
     "@types/bytebuffer": "^5.0.42",
     "@wireapp/proteus": "^9.12.1",
+    "aws-sdk": "2.959.0",
     "bytebuffer": "^5.0.1",
     "curve25519-js": "^0.0.4",
     "libsignal": "^2.0.1",
