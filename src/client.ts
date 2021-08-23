@@ -75,16 +75,19 @@ export class WaClient {
     }
 
     createConnection = () => {
-        this.socket = new Socket();
-        this.socket.open();
-        this.ephemeralKeyPair = generateIdentityKeyPair();
-        this.socket.onOpen = this.handleSocketOpen;
+        return new Promise((resolve) => {
+            this.socket = new Socket();
+            this.socket.open();
+            this.ephemeralKeyPair = generateIdentityKeyPair();
+            this.socket.onOpen = this.handleSocketOpen(() => resolve(true));
+        });
     };
 
-    private handleSocketOpen = async () => {
+    private handleSocketOpen = (cb) => async () => {
         try {
             await this.configureConnection();
             this.createKeepAlive();
+            cb();
         } catch (e) {
             if (this.onSocketClose) {
                 this.onSocketClose(e);
