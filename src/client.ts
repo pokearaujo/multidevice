@@ -1478,6 +1478,7 @@ export class WaClient extends EventEmitter {
         const syncData = WAProto.HistorySync.decode(await dataPromise);
 
         //console.log('downloaded sync', syncData);
+        this.emit('history-sync', syncData);
     }
 
     public getMessageType(message: WAProto.IMessage) {

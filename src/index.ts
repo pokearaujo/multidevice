@@ -25,6 +25,10 @@ import got from 'got';
         console.log('received qr', qr);
     });
 
+    session.on('history-sync', (history) => {
+        console.log('history sync ', history);
+    });
+
     session.on('group-update', (update: any) => {
         console.log('received group update', update);
     });
