@@ -93,6 +93,9 @@ export class FrameSocket {
             this.draining = false;
             this.closed = true;
             this.onClose && this.onClose();
+
+            console.log("Trying restart when framesocket closed");
+            this.socket.restart();
         }
     }
 
