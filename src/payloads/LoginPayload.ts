@@ -9,7 +9,7 @@ export const generatePayloadLogin = (user: WapJid) => {
     userAgent: {
       appVersion: {
         primary: 2,
-        secondary: 2126,
+        secondary: 2204,
         tertiary: 14,
       },
       platform: 14,
